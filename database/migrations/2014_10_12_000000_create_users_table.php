@@ -16,14 +16,14 @@ return new class extends Migration
             $table->id();
             $table->string('email')->unique();
             $table->string('name', 50);
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->string('social_id')->nullable();
-            $table->string('package_type', 10);
-            $table->date('package_register_date')->default(now());
+            $table->string('package_type', 10)->default('basic');
+            $table->date('package_register_date')->nullable();
             $table->date('package_expiration_date');
             $table->integer('max_storage');
             $table->date('last_login_date')->nullable();
-            $table->tinyInteger('remember')->default(0);
+            $table->boolean('remember')->default(0);
             $table->string('created_by', 50)->nullable();
             $table->string('updated_by', 50)->nullable();
             $table->timestamp('updated_ts')->nullable();

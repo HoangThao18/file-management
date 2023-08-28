@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\api\LoginController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -19,3 +20,5 @@ Route::get('/', function () {
 
     return view('home', ['users' => $users]);
 });
+Route::get('/login/google',  [LoginController::class, 'redirectToGoogle']);
+Route::get('/login/google/callback',  [LoginController::class, 'handleGoogleCallback']);

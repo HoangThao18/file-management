@@ -20,6 +20,13 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'social_id',
+        'package_type',
+        'package_register_date',
+        'package_expiration_date',
+        'max_storage',
+        'last_login_date',
+        'remember'
     ];
 
     /**
@@ -29,7 +36,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',
-        'remember_token',
+
     ];
 
     /**
