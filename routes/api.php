@@ -1,12 +1,16 @@
 <?php
 
-use App\Http\Controllers\api\FileController;
-use App\Http\Controllers\api\FolderController;
-use App\Http\Controllers\api\LoginController;
-use App\Http\Controllers\api\RegisterController;
-use App\Http\Controllers\api\SupportController;
-use App\Http\Controllers\api\TrashController;
-use App\Http\Controllers\api\UserController;
+
+use App\Http\Controllers\API\User\Auth\LoginController;
+use App\Http\Controllers\API\User\Auth\LogoutController;
+use App\Http\Controllers\API\User\Auth\RegisterController;
+use App\Http\Controllers\API\User\Auth\ResetPasswordController;
+use App\Http\Controllers\API\User\Folder\FileController;
+use App\Http\Controllers\API\User\Folder\FolderController;
+use App\Http\Controllers\API\User\Folder\TrashController;
+use App\Http\Controllers\API\User\SupportController;
+use App\Http\Controllers\API\User\UserController;
+use App\Http\Libraries\FileUploadLibrary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,36 +27,53 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::post('/login', [LoginController::class, 'login']);
+Route::post('/register', [RegisterController::class, 'register']);
+Route::post('/forgot-password', [ResetPasswordController::class, 'sendMail']);
+Route::put('reset-password/{token}', [ResetPasswordController::class, 'reset']);
 
 Route::middleware('auth:api')->group(function () {
 
-  Route::get('/user/{user}', [UserController::class, 'show']);
-  Route::get('/user', [UserController::class, 'index']);
-  Route::put('/user/{user}', [UserController::class, 'update']);
-  Route::delete('/user/{user}', [UserController::class, 'destroy']);
-  Route::post('/user', [UserController::class, 'store']);
+  Route::prefix('user')->group(function () {
+    Route::get('/', [UserController::class, 'index']);
+    Route::put('/', [UserController::class, 'update']);
+    Route::get('/detail', [UserController::class, 'show']);
+    Route::delete('/{user}', [UserController::class, 'destroy']);
+    Route::post('/user', [UserController::class, 'store']);
+    Route::post('/logout', [LogoutController::class, 'logout']);
+    // Route::get('/user/{user}/folder/{folder}/file')
+    // Route::get('/user/{user}/folder');
+  });
 
-  Route::post('/folder', [FolderController::class, 'store']);
-  Route::get('/folder/{folder}', [FolderController::class, 'show']);
-  Route::get('/folder', [FolderController::class, 'index']);
-  Route::put('/folder/{folder}', [FolderController::class, 'update']);
-  Route::delete('/folder/{folder}', [FolderController::class, 'destroy']);
+  Route::prefix('folder')->group(function () {
+    Route::get('/', [FolderController::class, 'index']);
+    Route::post('/', [FolderController::class, 'store']);
+    Route::get('/{folder}', [FolderController::class, 'show']);
+    Route::put('/{folder}', [FolderController::class, 'update']);
+    Route::delete('/{folder}', [FolderController::class, 'destroy']);
+  });
 
-  Route::get('/file/{file}', [FileController::class, 'show']);
-  Route::get('/file', [FileController::class, 'index']);
-  Route::put('/file/{file}', [FileController::class, 'update']);
-  Route::delete('/file/{file}', [FileController::class, 'destroy']);
-  Route::post('/file', [FileController::class, 'store']);
+  Route::prefix('file')->group(function () {
+    Route::get('/', [FileController::class, 'index']);
+    Route::post('/', [FileController::class, 'store']);
+    Route::get('/{file}', [FileController::class, 'show']);
+    Route::put('/{file}', [FileController::class, 'update']);
+    Route::delete('/{file}', [FileController::class, 'destroy']);
+    Route::post('/upload', [FileUploadLibrary::class, 'upload']);
+  });
 
-  Route::get('/trash/{trash}', [TrashController::class, 'show']);
-  Route::get('/trash', [TrashController::class, 'index']);
-  Route::put('/trash/{trash}', [TrashController::class, 'update']);
-  Route::delete('/trash/{trash}', [TrashController::class, 'destroy']);
-  Route::post('/trash', [TrashController::class, 'store']);
+  Route::prefix('trash')->group(function () {
+    Route::get('/', [TrashController::class, 'index']);
+    Route::post('/', [TrashController::class, 'store']);
+    Route::get('/{trash}', [TrashController::class, 'show']);
+    Route::put('/{trash}', [TrashController::class, 'update']);
+    Route::delete('/{trash}', [TrashController::class, 'destroy']);
+  });
 
-  Route::get('/support/{support}', [SupportController::class, 'show']);
-  Route::get('/support', [SupportController::class, 'index']);
-  Route::put('/support/{support}', [SupportController::class, 'update']);
-  Route::delete('/support/{support}', [SupportController::class, 'destroy']);
-  Route::post('/support', [SupportController::class, 'store']);
+  Route::prefix('support')->group(function () {
+    Route::get('/', [SupportController::class, 'index']);
+    Route::post('/', [SupportController::class, 'store']);
+    Route::get('/{support}', [SupportController::class, 'show']);
+    Route::put('/{support}', [SupportController::class, 'update']);
+    Route::delete('/{support}', [SupportController::class, 'destroy']);
+  });
 });

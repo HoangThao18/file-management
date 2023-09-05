@@ -1,18 +1,20 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\API\User\Folder;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreFolderRequest;
-use App\Http\Requests\UpdateFolderRequest;
 use App\Models\Folder;
 use App\Repositories\FolderRepository;
 use Illuminate\Http\Request;
+use App\Http\Libraries\HttpResponse;
+use App\Http\Resources\FolderResource;
 
 class FolderController extends Controller
 {
     //
     protected $folderRepository;
+
     public function __construct(FolderRepository $folderRepository)
     {
         $this->folderRepository = $folderRepository;
@@ -20,29 +22,30 @@ class FolderController extends Controller
 
     public function index()
     {
-        return $this->folderRepository->all();
+        $folders = $this->folderRepository->paginate(10);
+        return HttpResponse::resJsonSuccess(FolderResource::collection($folders));
     }
 
     public function show(Folder $folder)
     {
-        return response()->json($folder);
+        return HttpResponse::resJsonSuccess(new FolderResource($folder));
     }
 
     public function store(StoreFolderRequest $request)
     {
-        $this->folderRepository->create($request->validated());
-        return response()->json(['message' => "Folder created successfully "], 200);
+        $folder = $this->folderRepository->create($request->validated());
+        return HttpResponse::resJsonCreated(new FolderResource($folder));
     }
 
     public function update(Request $request, Folder $folder)
     {
-        $this->folderRepository->update($request->all(), $folder->id);
-        return response()->json(['message' => "Folder updated successfully "], 200);
+        $folder = $this->folderRepository->update($request->all(), $folder->id);
+        return HttpResponse::resJsonSuccess(new FolderResource($folder));
     }
 
     public function destroy(Folder $folder)
     {
         $this->folderRepository->update(['status' => true], $folder->id);
-        return response()->json(['message' => "Folder remove successfully "], 200);
+        return HttpResponse::resJsonSuccess(null, "removed successfully");
     }
 }

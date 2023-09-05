@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\API\User\Folder;
 
 use App\Http\Controllers\Controller;
+use App\Http\Libraries\HttpResponse;
 use App\Http\Requests\StoreFileRequest;
+use App\Http\Resources\FileResource;
 use App\Models\File;
 use App\Repositories\FileRepository;
 use Illuminate\Http\Request;
@@ -11,6 +13,7 @@ use Illuminate\Http\Request;
 class FileController extends Controller
 {
     protected $fileRepository;
+
     public function __construct(FileRepository $fileRepository)
     {
         $this->fileRepository = $fileRepository;
@@ -20,7 +23,8 @@ class FileController extends Controller
      */
     public function index()
     {
-        return response()->json($this->fileRepository->all());
+        $files = $this->fileRepository->paginate(10);
+        return HttpResponse::resJsonSuccess(FileResource::collection($files));
     }
 
     /**
@@ -28,8 +32,8 @@ class FileController extends Controller
      */
     public function store(StoreFileRequest $request)
     {
-        $this->fileRepository->create($request->validated());
-        return response()->json(['message' => 'File created successfully'], 200);
+        $file = $this->fileRepository->create($request->validated());
+        return HttpResponse::resJsonCreated(new FileResource($file));
     }
 
     /**
@@ -37,7 +41,7 @@ class FileController extends Controller
      */
     public function show(File $file)
     {
-        return response()->json($file);
+        return HttpResponse::resJsonSuccess(new FileResource($file));
     }
 
 
@@ -46,8 +50,8 @@ class FileController extends Controller
      */
     public function update(Request $request, File $file)
     {
-        $this->fileRepository->update($request->all(), $file->id);
-        return response()->json(['message' => "File updated successfully "], 200);
+        $file = $this->fileRepository->update($request->all(), $file->id);
+        return HttpResponse::resJsonSuccess(new FileResource($file));
     }
 
     /**
@@ -55,7 +59,7 @@ class FileController extends Controller
      */
     public function destroy(File $file)
     {
-        $this->fileRepository->update(['status' => true], $file->id);
-        return response()->json(['message' => "Folder remove successfully "], 200);
+        $file = $this->fileRepository->update(['status' => true], $file->id);
+        return HttpResponse::resJsonSuccess($file, "removed successfully");
     }
 }

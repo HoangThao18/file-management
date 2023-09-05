@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\API\User\Folder;
 
 use App\Http\Controllers\Controller;
+use App\Http\Libraries\HttpResponse;
 use App\Http\Requests\StoreTrashRequest;
+use App\Http\Resources\TrashResource;
 use App\Models\Trash;
 use App\Repositories\TrashRepository;
 use Illuminate\Http\Request;
@@ -11,6 +13,7 @@ use Illuminate\Http\Request;
 class TrashController extends Controller
 {
     protected $trashRepository;
+
     public function __construct(TrashRepository $trashRepository)
     {
         $this->trashRepository = $trashRepository;
@@ -20,7 +23,8 @@ class TrashController extends Controller
      */
     public function index()
     {
-        return $this->trashRepository->all();
+        $trashes = $this->trashRepository->paginate(10);
+        return HttpResponse::resJsonSuccess(TrashResource::collection($trashes));
     }
 
     /**
@@ -28,8 +32,8 @@ class TrashController extends Controller
      */
     public function store(Request $request)
     {
-        $this->trashRepository->create($request->all());
-        return response()->json(['message' => "Trash created successfully "], 200);
+        $trash = $this->trashRepository->create($request->all());
+        return HttpResponse::resJsonCreated(new TrashResource($trash));
     }
 
     /**
@@ -37,8 +41,7 @@ class TrashController extends Controller
      */
     public function show(Trash $trash)
     {
-        //
-        return response()->json($trash);
+        return HttpResponse::resJsonSuccess(new TrashResource($trash));
     }
 
     /**
@@ -46,8 +49,8 @@ class TrashController extends Controller
      */
     public function update(Request $request, Trash $trash)
     {
-        $this->trashRepository->update($request->all(), $trash->id);
-        return response()->json(['message' => "Trash updated successfully "], 200);
+        $trash = $this->trashRepository->update($request->all(), $trash->id);
+        return HttpResponse::resJsonSuccess(new TrashResource($trash));
     }
 
     /**
@@ -56,6 +59,6 @@ class TrashController extends Controller
     public function destroy(Trash $trash)
     {
         $trash->delete();
-        return response()->json(['message' => "Trash remove successfully "], 200);
+        return HttpResponse::resJsonSuccess(null, "removed successfully");
     }
 }

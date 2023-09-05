@@ -20,7 +20,7 @@ class UsersTableSeeder extends Seeder
             DB::table('users')->insert([
                 'email' => "user$i@gmail.com",
                 'name' => "User $i",
-                'password' => Hash::make('thao123'),
+                'password' => Hash::make('thao12345'),
                 'social_id' => null,
                 'package_type' => 'Basic',
                 'package_expiration_date' => Date::now()->addMonths(1),

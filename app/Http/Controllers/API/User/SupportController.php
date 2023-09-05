@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\API\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Libraries\HttpResponse;
 use App\Http\Requests\StoreSupportRequest;
+use App\Http\Resources\SupportResource;
 use App\Models\Support;
 use App\Repositories\SupportRepository;
 use Illuminate\Http\Request;
@@ -11,6 +13,7 @@ use Illuminate\Http\Request;
 class SupportController extends Controller
 {
     protected $supportRepository;
+
     public function __construct(SupportRepository $supportRepository)
     {
         $this->supportRepository = $supportRepository;
@@ -20,7 +23,8 @@ class SupportController extends Controller
      */
     public function index()
     {
-        return $this->supportRepository->all();
+        $supports = $this->supportRepository->paginate(10);
+        return HttpResponse::resJsonSuccess(SupportResource::collection($supports));
     }
 
 
@@ -29,8 +33,8 @@ class SupportController extends Controller
      */
     public function store(StoreSupportRequest $request)
     {
-        $this->supportRepository->create($request->validated());
-        return response()->json(['message' => 'Support created successfully'], 200);
+        $support = $this->supportRepository->create($request->validated());
+        return HttpResponse::resJsonCreated(new SupportResource($support));
     }
 
     /**
@@ -38,7 +42,7 @@ class SupportController extends Controller
      */
     public function show(Support $support)
     {
-        return $support;
+        return HttpResponse::resJsonSuccess(new SupportResource($support));
     }
 
     /**
@@ -46,8 +50,8 @@ class SupportController extends Controller
      */
     public function update(Request $request, Support $support)
     {
-        $this->supportRepository->update($request->all(), $support->id);
-        return response()->json(['message' => "Support updated successfully "], 200);
+        $support = $this->supportRepository->update($request->all(), $support->id);
+        return HttpResponse::resJsonSuccess(new SupportResource($support));
     }
 
     /**
@@ -56,6 +60,6 @@ class SupportController extends Controller
     public function destroy(Support $support)
     {
         $support->delete();
-        return response()->json(['message' => "support remove successfully "], 200);
+        return HttpResponse::resJsonSuccess(null, 'removed successfully');
     }
 }
