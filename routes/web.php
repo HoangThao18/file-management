@@ -1,8 +1,10 @@
 <?php
 
-use App\Http\Controllers\api\LoginController;
+use App\Http\Controllers\API\User\Auth\LoginController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+
+
 
 /*
 |--------------------------------------------------------------------------

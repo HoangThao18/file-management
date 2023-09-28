@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('social_id')->nullable();
             $table->string('package_type', 10)->default('basic');
             $table->date('package_register_date')->nullable();
-            $table->date('package_expiration_date');
-            $table->integer('max_storage');
+            $table->date('package_expiration_date')->nullable();
+            $table->integer('max_storage')->default(10240);
             $table->date('last_login_date')->nullable();
             $table->boolean('remember')->default(0);
             $table->string('created_by', 50)->nullable();

@@ -1,23 +1,28 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\API\User\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Libraries\HttpResponse;
+use App\Http\Resources\UserResource;
 use App\Models\User;
-use App\Repository\UserRepository;
+use App\Repositories\UserRepository;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Socialite\Facades\Socialite;
-
 use function Laravel\Prompts\password;
+use Laravel\Passport\Client;
 
 class LoginController extends Controller
 {
     //
     protected $userRepository;
+
     public function __construct(UserRepository $userRepository)
     {
         $this->userRepository = $userRepository;
@@ -26,55 +31,64 @@ class LoginController extends Controller
     public function login(Request $request)
     {
 
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required',
-
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'fails',
-                'message' => $validator->errors()->first(),
-                'errors' => $validator->errors()->toArray(),
-            ], 500);
+            return HttpResponse::resJsonFail($validator->errors()->toArray(), 400);
         }
-
+        $client = Client::where('password_client', 1)->first();
 
         if (Auth::attempt(['email' => $request->input('email'), 'password' => $request->input('password')])) {
-            $user = Auth::user();
-            $tokenResult = $user->createToken("token");
+            $response = Http::asForm()->post('http://192.168.131.128/oauth/token', [
+                'grant_type' => 'password',
+                'client_id' => $client->id,
+                'client_secret' => $client->secret,
+                'username' => $request->email,
+                'password' => $request->password,
+                'scope' => '',
+            ]);
 
-            if ($request->input('remember')) {
-                $tokenResult->token->expires_at = now()->addMonth(1);;
-            }
-
-            return response()->json([
-                'status' => 'success',
-                'expries_at' => $tokenResult->token->expires_at->toDateTimeString(),
-                'access_token' => $tokenResult->accessToken
-            ], 200);
+            return HttpResponse::resJsonSuccess($response->json());
         }
 
-        return response()->json(
-            [
-                'status' => 'fails',
-                'message' => 'Unauthorised'
-            ],
-            401
-        );
+        return HttpResponse::resJsonFail("Email or password is incorrect.", 401, "Unauthorised");
+    }
+
+    //refresh token
+    public function refreshToken(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'refresh_token' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return HttpResponse::resJsonFail($validator->errors()->toArray(), 400);
+        }
+        $client = Client::where('password_client', 1)->first();
+
+        $response = Http::asForm()->post('http://192.168.131.128/oauth/token', [
+            'grant_type' => 'refresh_token',
+            'refresh_token' => $request->refresh_token,
+            'client_id' => $client->id,
+            'client_secret' => $client->secret,
+            'scope' => '',
+        ]);
+        return HttpResponse::resJsonSuccess($response->json());
     }
 
     // handle login social
     public function redirectToGoogle()
     {
-
         return Socialite::driver('google')->redirect();
     }
 
     public function handleGoogleCallback()
     {
         $user = Socialite::driver('google')->user();
+
         $existingUser = $this->userRepository->findByEmail($user->email);
 
         if (!$existingUser) {
@@ -91,7 +105,7 @@ class LoginController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'expries_at' => $tokenResult->token->expires_at,
+            'expires_at' => $tokenResult->token->expires_at,
             'access_token' => $tokenResult->accessToken
         ], 200);
     }

@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('created_by', 50)->nullable();
             $table->string('updated_by', 50)->nullable();
             $table->timestamp('updated_Ts')->nullable();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('no action')->onUpdate('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 
