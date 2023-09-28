@@ -37,7 +37,7 @@ class ResetPasswordController extends Controller
         return HttpResponse::resJsonSuccess(null, "We have sent e-mailed your password reset link!");
     }
 
-    public function reset(Request $request, $token)
+    public function resetPassword(Request $request, $token)
     {
         try {
             $passwordReset = PasswordReset::where('token', $token)->first();

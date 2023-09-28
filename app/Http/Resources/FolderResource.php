@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\FileResource;
 
 class FolderResource extends JsonResource
 {
@@ -19,10 +20,11 @@ class FolderResource extends JsonResource
             'name' => $this->name,
             'size' => $this->size,
             'parent_folder' => $this->parent_folder,
-            'path' => $this->path,
-            'status' => $this->status,
-            'link_share' => $this->link_share,
+            'description' => $this->description,
+            'files' => FileResource::collection($this->files),
             'created_at' => $this->created_at,
+            'deleted_at' => $this->deleted_at,
+            'created_by' => $this->created_by
         ];
     }
 }

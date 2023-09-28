@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class StoreFolderRequest extends FormRequest
+class DownloadRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,8 +23,17 @@ class StoreFolderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'parent_id' => ['nullable', Rule::exists('files', 'id')->whereNull('deleted_at')],
-            'name' => 'required',
+            'parent_id' => ['nullable', Rule::exists('folders', 'id')->whereNull('deleted_at')],
+            "fileIds.*" => Rule::exists('files', 'id')->whereNull('deleted_at'),
+            "folderIds.*" => Rule::exists('folders', 'id')->whereNull('deleted_at'),
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            "fileIds.*" => "the selected file invalid",
+            "folderIds.*" => "the selected folder invalid",
         ];
     }
 }

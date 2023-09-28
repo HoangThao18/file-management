@@ -3,8 +3,10 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
-class StoreFileRequest extends FormRequest
+class ActionFileRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,10 +24,8 @@ class StoreFileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required',
-            'size' => 'required',
-            'path' => 'required',
-            'folder_id' => 'required',
+            "fileIds.*" => Rule::exists('files', 'id')->where('user_id', Auth::id()),
+            "folderIds.*" => Rule::exists('folders', 'id')->where('user_id', Auth::id()),
         ];
     }
 }

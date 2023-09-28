@@ -2,27 +2,44 @@
 
 namespace App\Http\Libraries;
 
+use App\Models\File;
+use App\Models\Folder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class FileUploadLibrary
 {
 
-  public function upLoad(Request $request)
+  public  function upLoadFile($user, $file, $parent)
   {
-    $file = $request->file('file');
 
-    if (!$file) {
-      return HttpResponse::resJsonFail('No file provided.', 400);
-    }
     $fileName = $file->getClientOriginalName();
-    $filePath = 'uploads/users' . $request->user()->id;
-
-    if (Storage::exists($filePath . '/' . $fileName)) {
-      return HttpResponse::resJsonFail('File already exists', 400);
-    }
-
+    $filePath = 'public/uploads/users/' . $user->id;
     $path = $file->storeAs($filePath, $fileName);
-    return $path;
+
+    $fileNew = new File([
+      'name' => $fileName,
+      'size' => $file->getSize(),
+      'path' => $path,
+      'user_id' => $user->id,
+      'folder_id' => $parent
+    ]);
+    $fileNew->save();
+  }
+
+  public  function uploadFolder($fileTree, $parent, $user)
+  {
+    foreach ($fileTree as $name => $value) {
+      if (is_array($value)) {
+        $newFolder = new Folder();
+        $newFolder->name = $name;
+        $newFolder->user_id = $user->id;
+        $newFolder->parent_folder = $parent;
+        $newFolder->save();
+        $this->upLoadFolder($value, $newFolder->id, $user);
+      } else {
+        $this->upLoadFile($user, $value, $parent);
+      }
+    }
   }
 }

@@ -23,6 +23,8 @@ class SupportController extends Controller
      */
     public function index()
     {
+        $user = new \App\Models\User();
+        // $user->name
         $supports = $this->supportRepository->paginate(10);
         return HttpResponse::resJsonSuccess(SupportResource::collection($supports));
     }

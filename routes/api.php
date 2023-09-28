@@ -25,55 +25,68 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get("/download", [FolderController::class, 'download']);
 
+Route::post('/refresh-token', [LoginController::class, 'refreshToken']);
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/forgot-password', [ResetPasswordController::class, 'sendMail']);
-Route::put('reset-password/{token}', [ResetPasswordController::class, 'reset']);
+Route::post('/reset-password/{token}', [ResetPasswordController::class, 'resetPassword']);
 
 Route::middleware('auth:api')->group(function () {
 
   Route::prefix('user')->group(function () {
-    Route::get('/', [UserController::class, 'index']);
     Route::put('/', [UserController::class, 'update']);
-    Route::get('/detail', [UserController::class, 'show']);
-    Route::delete('/{user}', [UserController::class, 'destroy']);
-    Route::post('/user', [UserController::class, 'store']);
+    Route::get("/profile", [UserController::class, 'getProfile']);
+    Route::delete('/{userDel}', [UserController::class, 'destroy']);
     Route::post('/logout', [LogoutController::class, 'logout']);
-    // Route::get('/user/{user}/folder/{folder}/file')
-    // Route::get('/user/{user}/folder');
-  });
+    Route::get('/myfile', [UserController::class, 'getRootFoldersAndFiles']);
+    Route::post("/change-password", [UserController::class, 'changePassword']);
 
-  Route::prefix('folder')->group(function () {
-    Route::get('/', [FolderController::class, 'index']);
-    Route::post('/', [FolderController::class, 'store']);
-    Route::get('/{folder}', [FolderController::class, 'show']);
-    Route::put('/{folder}', [FolderController::class, 'update']);
-    Route::delete('/{folder}', [FolderController::class, 'destroy']);
-  });
+    Route::prefix('folder')->group(function () {
+      Route::delete("/delete", [FolderController::class, 'deleteFolder']);
+      Route::get("/{folder}", [FolderController::class, 'getFilesOfFolder']);
+      Route::post("/", [FolderController::class, 'createFolder']);
+      Route::put("/{folder}", [FolderController::class, 'update']);
+      Route::post("/upload", [FolderController::class, 'uploadFolder']);
+      Route::post("/share", [FolderController::class, 'share']);
+      Route::get("share/{token}", [FolderController::class, 'shareByMe']);
+    });
 
-  Route::prefix('file')->group(function () {
-    Route::get('/', [FileController::class, 'index']);
-    Route::post('/', [FileController::class, 'store']);
-    Route::get('/{file}', [FileController::class, 'show']);
-    Route::put('/{file}', [FileController::class, 'update']);
-    Route::delete('/{file}', [FileController::class, 'destroy']);
-    Route::post('/upload', [FileUploadLibrary::class, 'upload']);
+    Route::prefix('file')->group(function () {
+      Route::delete("/delete", [FileController::class, 'deleteFile']);
+      Route::put("/{file}", [FileController::class, 'update']);
+      Route::post('/upload', [FileController::class, 'upload']);
+    });
+
+    Route::get("/search", [UserController::class, 'search']);
   });
 
   Route::prefix('trash')->group(function () {
     Route::get('/', [TrashController::class, 'index']);
-    Route::post('/', [TrashController::class, 'store']);
-    Route::get('/{trash}', [TrashController::class, 'show']);
-    Route::put('/{trash}', [TrashController::class, 'update']);
-    Route::delete('/{trash}', [TrashController::class, 'destroy']);
+    Route::post('/restore', [TrashController::class, 'restore']);
+    Route::delete('/delete', [TrashController::class, 'destroy']);
   });
 
-  Route::prefix('support')->group(function () {
-    Route::get('/', [SupportController::class, 'index']);
-    Route::post('/', [SupportController::class, 'store']);
-    Route::get('/{support}', [SupportController::class, 'show']);
-    Route::put('/{support}', [SupportController::class, 'update']);
-    Route::delete('/{support}', [SupportController::class, 'destroy']);
-  });
+
+  // Route::group(['prefix' => 'admin', 'middleware' =>  ['checkAdmin']], function () {
+  //   Route::prefix('folder')->group(function () {
+  //     Route::get('/', [FolderController::class, 'index']);
+  //     Route::post('/', [FolderController::class, 'store']);
+  //     Route::get('/{folder}', [FolderController::class, 'show']);
+  //   });
+  //   Route::prefix('file')->group(function () {
+  //     Route::get('/', [FileController::class, 'index']);
+  //     Route::post('/', [FileController::class, 'store']);
+  //     Route::get('/{file}', [FileController::class, 'show']);
+  //   });
+
+  // Route::prefix('support')->group(function () {
+  //   Route::get('/', [SupportController::class, 'index']);
+  //   Route::post('/', [SupportController::class, 'store']);
+  //   Route::get('/{support}', [SupportController::class, 'show']);
+  //   Route::put('/{support}', [SupportController::class, 'update']);
+  //   Route::delete('/{support}', [SupportController::class, 'destroy']);
+  // });
+  // });
 });

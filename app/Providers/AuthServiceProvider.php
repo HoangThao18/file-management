@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Folder;
+use App\Policies\FolderPolicy;
 use Laravel\Passport\Passport;
 
 // use Illuminate\Support\Facades\Gate;
@@ -15,15 +17,16 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        //
+        Folder::class => FolderPolicy::class
     ];
 
     /**
+     *
      * Register any authentication / authorization services.
      */
     public function boot(): void
     {
-        //
-
+        Passport::tokensExpireIn(now()->addHours(5));
+        Passport::refreshTokensExpireIn(now()->addDays(1));
     }
 }

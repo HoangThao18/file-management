@@ -7,9 +7,13 @@ use App\Http\Libraries\HttpResponse;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Modules\User\Folder\UserFolderModule;
+use App\Modules\User\UserAdmin;
+use App\Modules\User\UserNormal;
 use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+
 
 class UserController extends Controller
 {
@@ -31,9 +35,9 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show()
+    public function show(User $user)
     {
-        return HttpResponse::resJsonSuccess(new UserResource(auth()->user()));
+        return HttpResponse::resJsonSuccess(new UserResource($user));
     }
 
 
@@ -50,9 +54,48 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
+    public function destroy(User $userDel)
     {
-        $user->delete();
-        return HttpResponse::resJsonSuccess(null, "removed successfully");
+        $user = auth()->user();
+        $user = $this->userRepository->find($user->id);
+        $userAdmin = new UserAdmin();
+        $result = $userAdmin->setUser($user)->deleteUser($userDel);
+        return $result;
+    }
+
+    public function getProfile()
+    {
+        $user = auth()->user();
+        $user = $this->userRepository->find($user->id);
+        $userNormal = new UserNormal();
+        $userProfile =  $userNormal->setUser($user)->getProfile();
+        return HttpResponse::resJsonSuccess($userProfile);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $user = auth()->user();
+        $userNormal = $this->userRepository->find($user->id);
+        $userNormal = new UserNormal();
+        $result = $userNormal->setUser($user)->changePassword($request);
+        return $result;
+    }
+
+    public function getRootFoldersAndFiles(User $user)
+    {
+        $user = auth()->user();
+        $user = $this->userRepository->find($user->id);
+        $UserFolderModule = new UserFolderModule();
+        $result = $UserFolderModule->setUser($user)->getRootFoldersAndFiles();
+        return $result;
+    }
+
+    public function search(Request $request)
+    {
+        $user = auth()->user();
+        $user = $this->userRepository->find($user->id);
+        $userNormal = new UserNormal();
+        $result =  $userNormal->setUser($user)->search($request);
+        return $result;
     }
 }

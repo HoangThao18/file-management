@@ -17,12 +17,13 @@ class FileResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'size' => $this->size,
+            'size' => $this->getFileSize(),
             'folder_id' => $this->folder_id,
             'path' => $this->path,
-            'status' => $this->status,
-            'link_share' => $this->link_share,
+            'description' => $this->description,
             'created_at' => $this->created_at,
+            'deleted_at' => $this->deleted_at,
+            'created_by' => $this->created_by
         ];
     }
 }

@@ -4,9 +4,13 @@ namespace App\Http\Controllers\API\User\Folder;
 
 use App\Http\Controllers\Controller;
 use App\Http\Libraries\HttpResponse;
+use App\Http\Requests\DeleteFileRequest;
 use App\Http\Requests\StoreFileRequest;
+use App\Http\Requests\UploadFileRequest;
 use App\Http\Resources\FileResource;
 use App\Models\File;
+use App\Models\User;
+use App\Modules\User\UserNormal;
 use App\Repositories\FileRepository;
 use Illuminate\Http\Request;
 
@@ -28,15 +32,6 @@ class FileController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreFileRequest $request)
-    {
-        $file = $this->fileRepository->create($request->validated());
-        return HttpResponse::resJsonCreated(new FileResource($file));
-    }
-
-    /**
      * Display the specified resource.
      */
     public function show(File $file)
@@ -50,8 +45,11 @@ class FileController extends Controller
      */
     public function update(Request $request, File $file)
     {
-        $file = $this->fileRepository->update($request->all(), $file->id);
-        return HttpResponse::resJsonSuccess(new FileResource($file));
+        if (!$request->user()->can('update', $file)) {
+            return HttpResponse::resJsonFail("unauthorized", 403);
+        }
+        $this->fileRepository->update($request->all(), $file->id);
+        return HttpResponse::resJsonSuccess("updated successfully");
     }
 
     /**
@@ -59,7 +57,25 @@ class FileController extends Controller
      */
     public function destroy(File $file)
     {
-        $file = $this->fileRepository->update(['status' => true], $file->id);
-        return HttpResponse::resJsonSuccess($file, "removed successfully");
+        $this->fileRepository->delete($file->id);
+        return HttpResponse::resJsonSuccess(null, "deleted successfully");
+    }
+
+    public function upload(UploadFileRequest $request)
+    {
+        $user = auth()->user();
+        $user = User::find($user->id);
+        $userNormal = new UserNormal();
+        $result =  $userNormal->setUser($user)->uploadFile($request);
+        return $result;
+    }
+
+    public function deleteFile(DeleteFileRequest $request)
+    {
+        $user = auth()->user();
+        $user = User::find($user->id);
+        $userNormal = new UserNormal();
+        $result =  $userNormal->setUser($user)->deleteFile($request);
+        return $result;
     }
 }
