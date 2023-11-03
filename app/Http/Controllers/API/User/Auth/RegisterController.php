@@ -23,8 +23,7 @@ class RegisterController extends Controller
 
     public function register(StoreUserRequest $request)
     {
-
-        $user =  $this->userRepository->create($request->validated());
-        return HttpResponse::resJsonSuccess($user, "created successfully");
+        $this->userRepository->create($request->validated());
+        return HttpResponse::resJsonSuccess([], "created successfully");
     }
 }

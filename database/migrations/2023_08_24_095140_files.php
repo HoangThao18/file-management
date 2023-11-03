@@ -17,9 +17,9 @@ return new class extends Migration
             $table->integer('size');
             $table->string('path', 255);
             $table->text('description')->nullable();
-            $table->boolean('status')->default(0);
-            $table->string('link_share', 255)->nullable();
+            $table->string('token_share', 255)->nullable();
             $table->unsignedBigInteger('folder_id');
+            $table->unsignedBigInteger('user_id');
             $table->timestamps();
             $table->string('created_by', 50)->nullable();
             $table->string('updated_by', 50)->nullable();
@@ -27,6 +27,8 @@ return new class extends Migration
             $table->foreign('folder_id')->references('id')->on('folders')
                 ->onDelete('no action')
                 ->onUpdate('no action');
+            $table->foreign('user_id')->references('id')->on('users')
+                ->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

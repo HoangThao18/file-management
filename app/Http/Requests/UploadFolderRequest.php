@@ -20,6 +20,7 @@ class UploadFolderRequest extends FormRequest
 
     protected function prepareForValidation()
     {
+
         $paths = array_filter($this->relative_paths, function ($item) {
             return $item !== null;
         });
@@ -76,6 +77,7 @@ class UploadFolderRequest extends FormRequest
     private function buildFileTree($paths, $files)
     {
         $paths = array_slice($paths, 0, count($files));
+
         $tree = [];
 
         foreach ($paths as $ind => $value) {
@@ -96,6 +98,7 @@ class UploadFolderRequest extends FormRequest
                 }
             }
         }
+
 
         return $tree;
     }

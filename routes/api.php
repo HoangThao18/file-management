@@ -27,7 +27,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get("/download", [FolderController::class, 'download']);
 
-Route::post('/refresh-token', [LoginController::class, 'refreshToken']);
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 Route::post('/forgot-password', [ResetPasswordController::class, 'sendMail']);
@@ -38,13 +37,13 @@ Route::middleware('auth:api')->group(function () {
   Route::prefix('user')->group(function () {
     Route::put('/', [UserController::class, 'update']);
     Route::get("/profile", [UserController::class, 'getProfile']);
-    Route::delete('/{userDel}', [UserController::class, 'destroy']);
+    Route::delete('/{user}', [UserController::class, 'destroy']);
     Route::post('/logout', [LogoutController::class, 'logout']);
     Route::get('/myfile', [UserController::class, 'getRootFoldersAndFiles']);
     Route::post("/change-password", [UserController::class, 'changePassword']);
 
     Route::prefix('folder')->group(function () {
-      Route::delete("/delete", [FolderController::class, 'deleteFolder']);
+      Route::delete("/", [FolderController::class, 'deleteFolder']);
       Route::get("/{folder}", [FolderController::class, 'getFilesOfFolder']);
       Route::post("/", [FolderController::class, 'createFolder']);
       Route::put("/{folder}", [FolderController::class, 'update']);
@@ -60,33 +59,11 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::get("/search", [UserController::class, 'search']);
+
+    Route::prefix('trash')->group(function () {
+      Route::get('/', [TrashController::class, 'index']);
+      Route::post('/restore', [TrashController::class, 'restore']);
+      Route::delete('/delete', [TrashController::class, 'destroy']);
+    });
   });
-
-  Route::prefix('trash')->group(function () {
-    Route::get('/', [TrashController::class, 'index']);
-    Route::post('/restore', [TrashController::class, 'restore']);
-    Route::delete('/delete', [TrashController::class, 'destroy']);
-  });
-
-
-  // Route::group(['prefix' => 'admin', 'middleware' =>  ['checkAdmin']], function () {
-  //   Route::prefix('folder')->group(function () {
-  //     Route::get('/', [FolderController::class, 'index']);
-  //     Route::post('/', [FolderController::class, 'store']);
-  //     Route::get('/{folder}', [FolderController::class, 'show']);
-  //   });
-  //   Route::prefix('file')->group(function () {
-  //     Route::get('/', [FileController::class, 'index']);
-  //     Route::post('/', [FileController::class, 'store']);
-  //     Route::get('/{file}', [FileController::class, 'show']);
-  //   });
-
-  // Route::prefix('support')->group(function () {
-  //   Route::get('/', [SupportController::class, 'index']);
-  //   Route::post('/', [SupportController::class, 'store']);
-  //   Route::get('/{support}', [SupportController::class, 'show']);
-  //   Route::put('/{support}', [SupportController::class, 'update']);
-  //   Route::delete('/{support}', [SupportController::class, 'destroy']);
-  // });
-  // });
 });

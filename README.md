@@ -1,66 +1,66 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<h1> API Quản Lý File với Laravel </h1>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+<h3>Mô tả </h3>
+Dự án này là một RESTful API được xây dựng bằng Laravel để quản lý các hoạt động liên quan đến tệp (file) như tải lên, tải xuống và chia sẻ tệp. API cung cấp các tính năng cơ bản để quản lý tệp
 
-## About Laravel
+Tính Năng Chính
+Tải Lên Tệp (Upload File): Cho phép người dùng tải lên tệp lên hệ thống.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Tải Xuống Tệp (Download File): Cho phép người dùng tải xuống các tệp từ hệ thống.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Chia Sẻ Tệp (Share File): Cho phép người dùng tạo liên kết chia sẻ cho các tệp đã tải lên.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Xem Thông Tin Tệp (File Information): Cung cấp thông tin chi tiết về tệp như kích thước, ngày tạo, ngày cập nhật, và nhiều thông tin khác.
 
-## Learning Laravel
+Xóa Tệp (Delete File): Cho phép người dùng xóa tệp khỏi hệ thống.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+<h3>Bắt Đầu </h3>
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Để bắt đầu sử dụng API này, bạn cần:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+-   Cài Đặt Laravel
+-   Cài Đặt Dự Án: git clone https://github.com/HoangThao18/demo-mediafire
+-   chạy composer install để cài đặt các phụ thuộc.
+-   import database: https://github.com/HoangThao18/demo-mediafire/blob/main/file_manager.sql
+-   Cấu Hình Môi Trường: Cấu hình tệp .env để liên kết cơ sở dữ liệu và các thiết lập khác.
+-   Chạy lệnh php artisan migrate để tạo cơ sở dữ liệu cho ứng dụng
 
-## Laravel Sponsors
+<h3>Sử dụng </h3>
+API này sử dụng các endpoint sau:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+POST /api/login: đăng nhập
 
-### Premium Partners
+POST /api/register: đăng ký
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+POST /api/forgot-password: quên mật khẩu
 
-## Contributing
+GET /api/user/profile: lấy thông tin user
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+GET /api/user/logout: đăng xuất
 
-## Code of Conduct
+GET /api/user/myfile: lấy tất cả file và folder cha
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+POST /api/user/change-password: đổi password (tham số truyền vào: email)
 
-## Security Vulnerabilities
+POST /api/user/folder: tạo folder
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+DELETE /api/user/folder: xóa folder (tham số truyền vào: mảng ids[])
 
-## License
+put /api/user/folder/{folder}: sửa folder với id tương ứng
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+POST /api/user/folder/upload: upload folder (tham số truyền vào: relatives_path[], files[])
+
+POST /api/user/folder/share: chia sẻ folder
+
+GET /api/user/folder/{folder}: lấy folder với id tương ứng
+
+POST /api/user/file/upload: upload file (tham số truyền vào: files[])
+
+PUT /api/user/file/{file}: sửa file với id tương ứng
+
+DELETE /api/user/file: xóa file
+
+DELETE /api/download: download file (tham số truyền vào: fileIds[], folderIds[], parent_id(optional) )
+
+DELETE /api/delete-file/{file_id}: Xóa tệp với ID tương ứng.
+Chạy Ứng Dụng: Chạy php artisan serve để khởi chạy ứng dụng và sử dụng các tài khoản mặc định.

@@ -37,8 +37,10 @@ class FolderController extends Controller
         return HttpResponse::resJsonSuccess(FolderResource::collection($folders));
     }
 
-    public function show(Folder $folder)
+    public function show($folder)
     {
+        $folder = Folder::find($folder);
+
         return HttpResponse::resJsonSuccess(new FolderResource($folder));
     }
 
@@ -85,7 +87,6 @@ class FolderController extends Controller
     public function deleteFolder(DeleteFolderRequest $request)
     {
         $user = auth()->user();
-        $user = User::find($user->id);
         $userNormal = new UserNormal();
         $result =  $userNormal->setUser($user)->deleteFolder($request);
         return $result;
@@ -103,10 +104,8 @@ class FolderController extends Controller
 
     public function downLoad(DownloadRequest $request)
     {
-        $user = auth()->user();
-        $user = User::find($user->id);
         $userNormal = new UserNormal();
-        $result =  $userNormal->setUser($user)->download($request);
+        $result =  $userNormal->download($request);
         return $result;
     }
 

@@ -11,7 +11,7 @@ class File extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = ['name', 'size', 'path', 'description', 'link_share', 'folder_id', 'user_id'];
-
+    protected $table = "files";
 
     public function getFileSize()
     {

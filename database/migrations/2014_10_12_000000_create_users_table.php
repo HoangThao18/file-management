@@ -24,6 +24,7 @@ return new class extends Migration
             $table->integer('max_storage')->default(10240);
             $table->date('last_login_date')->nullable();
             $table->boolean('remember')->default(0);
+            $table->string('role', 20)->default('user');
             $table->string('created_by', 50)->nullable();
             $table->string('updated_by', 50)->nullable();
             $table->timestamp('updated_ts')->nullable();

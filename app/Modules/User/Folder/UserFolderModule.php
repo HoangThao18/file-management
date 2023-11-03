@@ -36,7 +36,6 @@ class UserFolderModule extends UserModuleAbstract
   public function getFilesOfFolder()
   {
     $subFolders = $this->folder
-      ->where('user_id', $this->user->id)
       ->where('parent_folder', $this->folder->id)
       ->get();
 

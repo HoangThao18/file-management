@@ -12,6 +12,7 @@ use App\Modules\User\UserAdmin;
 use App\Modules\User\UserNormal;
 use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -54,13 +55,18 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $userDel)
+    public function destroy($user)
     {
         $user = auth()->user();
         $user = $this->userRepository->find($user->id);
         $userAdmin = new UserAdmin();
-        $result = $userAdmin->setUser($user)->deleteUser($userDel);
+        $result = $userAdmin->setUser($user)->deleteUser($user);
         return $result;
+    }
+
+    public function getUser()
+    {
+        return HttpResponse::resJsonSuccess(new UserResource(Auth::user()));
     }
 
     public function getProfile()
