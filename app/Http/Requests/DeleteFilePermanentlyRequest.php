@@ -3,9 +3,10 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
-class DeleteFileRequest extends FormRequest
+class DeleteFilePermanentlyRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,8 +24,8 @@ class DeleteFileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "fileIds" => "Array",
-            "fileIds.*" => [Rule::exists('files', "id")->whereNull('deleted_at')],
+            "fileIds.*" => [Rule::exists('files', 'id')->where('user_id', Auth::id())->whereNotNull('deleted_at'),],
+            "folderIds.*" => [Rule::exists('folders', 'id')->where('user_id', Auth::id())->whereNotNull("deleted_at")],
         ];
     }
 }

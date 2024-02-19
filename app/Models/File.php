@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class File extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['name', 'size', 'path', 'description', 'link_share', 'folder_id', 'user_id'];
+    protected $fillable = ['name', 'size', 'path', 'description', 'link_share', 'folder_id', 'user_id', "is_starred", "uploaded_on_cloud"];
     protected $table = "files";
 
     public function getFileSize()
@@ -25,7 +26,8 @@ class File extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            $model->created_by = auth()->user()->name ?? 'anonymous';
+            $model->token_share = Str::random(10);
+            $model->created_by = auth()->user()->name;
         });
     }
 }

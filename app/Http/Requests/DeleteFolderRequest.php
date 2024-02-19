@@ -23,7 +23,8 @@ class DeleteFolderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "ids.*" => Rule::exists('folders', "id")->whereNull("deleted_at")
+            "FolderIds" => "required|Array",
+            "FolderIds.*" => [Rule::exists('folders', "id")->whereNull("deleted_at"), "required"]
         ];
     }
 }

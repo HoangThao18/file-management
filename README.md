@@ -49,6 +49,7 @@ DELETE /api/user/folder: xóa folder (tham số truyền vào: mảng ids[])
 put /api/user/folder/{folder}: sửa folder với id tương ứng
 
 POST /api/user/folder/upload: upload folder (tham số truyền vào: relatives_path[], files[])
+VD:relatives_path[0]: test/bai3.html files[0]: bai3.html
 
 POST /api/user/folder/share: chia sẻ folder
 

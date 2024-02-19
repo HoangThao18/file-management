@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\File;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class UploadFileRequest extends FormRequest
 {
@@ -24,6 +25,7 @@ class UploadFileRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'parent_folder' => ['nullable', Rule::exists('folders', 'id')->whereNull('deleted_at')],
             'files.*' => [
                 'required',
                 'file',

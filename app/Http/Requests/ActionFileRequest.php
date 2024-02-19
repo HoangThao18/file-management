@@ -24,8 +24,8 @@ class ActionFileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "fileIds.*" => Rule::exists('files', 'id')->where('user_id', Auth::id()),
-            "folderIds.*" => Rule::exists('folders', 'id')->where('user_id', Auth::id()),
+            "fileIds.*" => [Rule::exists('files', 'id')->where('user_id', Auth::id()), "required"],
+            "folderIds.*" => [Rule::exists('folders', 'id')->where('user_id', Auth::id()), 'required'],
         ];
     }
 }

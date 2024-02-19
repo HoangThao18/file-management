@@ -18,9 +18,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    $users = DB::table('users')->get();
-
-    return view('home', ['users' => $users]);
+    echo phpinfo();
+    exit;
 });
-Route::get('/login/google',  [LoginController::class, 'redirectToGoogle']);
-Route::get('/login/google/callback',  [LoginController::class, 'handleGoogleCallback']);

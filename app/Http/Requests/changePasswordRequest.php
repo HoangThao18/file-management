@@ -3,16 +3,15 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class DeleteFileRequest extends FormRequest
+class changePasswordRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -23,8 +22,9 @@ class DeleteFileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "fileIds" => "Array",
-            "fileIds.*" => [Rule::exists('files', "id")->whereNull('deleted_at')],
+            'password' => "required",
+            'new_password' => "required|min:8",
+            'confirm_password' => 'required|same:new_password',
         ];
     }
 }

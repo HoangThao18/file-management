@@ -11,24 +11,30 @@ use App\Http\Libraries\HttpResponse;
 use App\Http\Requests\ActionFileRequest;
 use App\Http\Requests\DeleteFolderRequest;
 use App\Http\Requests\DownloadRequest;
+use App\Http\Requests\RestoreFolderRequest;
 use App\Http\Requests\UploadFolderRequest;
 use App\Http\Resources\FileResource;
 use App\Http\Resources\FolderResource;
 use App\Models\File;
 use App\Models\User;
+use App\Modules\User\Folder\FolderModuleInterface;
+use App\Modules\User\Folder\FolerModuleAbstract;
 use App\Modules\User\Folder\UserFolderModule;
 use App\Modules\User\UserNormal;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class FolderController extends Controller
 {
     //
     protected $folderRepository;
+    protected $folderModule;
 
-    public function __construct(FolderRepository $folderRepository)
+    public function __construct(FolderRepository $folderRepository, FolderModuleInterface $folerModule)
     {
         $this->folderRepository = $folderRepository;
+        $this->folderModule = $folerModule;
     }
 
     public function index(Request $request)
@@ -37,18 +43,17 @@ class FolderController extends Controller
         return HttpResponse::resJsonSuccess(FolderResource::collection($folders));
     }
 
-    public function show($folder)
-    {
-        $folder = Folder::find($folder);
+    // public function show($folder)
+    // {
+    //     $folder = Folder::find($folder);
+    //     return HttpResponse::resJsonSuccess(new FolderResource($folder));
+    // }
 
-        return HttpResponse::resJsonSuccess(new FolderResource($folder));
-    }
-
-    public function store(StoreFolderRequest $request)
-    {
-        $folder = $this->folderRepository->create($request->validated());
-        return HttpResponse::resJsonCreated(new FolderResource($folder));
-    }
+    // public function store(StoreFolderRequest $request)
+    // {
+    //     $folder = $this->folderRepository->create($request->validated());
+    //     return HttpResponse::resJsonCreated(new FolderResource($folder));
+    // }
 
     public function update(Request $request, Folder $folder)
     {
@@ -67,80 +72,38 @@ class FolderController extends Controller
 
     public function createFolder(StoreFolderRequest $request)
     {
-        $user = Auth()->user();
-        $user = User::find($user->id);
-        $userNormal = new UserNormal();
-        $result =  $userNormal->setUser($user)->createFolder($request);
-        return $result;
+        return $this->folderModule->createFolder($request->name, $request->parent_id ?? null);
     }
 
-    public function getFilesOfFolder(Folder $folder)
+    public function getFilesOfFolder($folder)
     {
-        $user = Auth()->user();
-        $user = User::find($user->id);
-        $userFolderModule = new UserFolderModule();
-        $userFolderModule->setUser($user);
-        $result = $userFolderModule->setFolder($folder)->getFilesOfFolder($folder);
-        return $result;
+        return $this->folderModule->getFilesOfFolder($folder);
     }
 
     public function deleteFolder(DeleteFolderRequest $request)
     {
-        $user = auth()->user();
-        $userNormal = new UserNormal();
-        $result =  $userNormal->setUser($user)->deleteFolder($request);
-        return $result;
+        return $this->folderModule->deleteFolder($request->FolderIds);
     }
 
     public function upLoadFolder(UploadFolderRequest $request)
     {
-        $user = auth()->user();
-        $user = User::find($user->id);
-        $userFolderModule = new userFolderModule();
-        $userFolderModule->setUser($user);
-        $result = $userFolderModule->uploadFolder($request);
-        return $result;
+        return $this->folderModule->uploadFolder($request->files_tree, $request->validated()['parent_id'] ?? null);
     }
 
     public function downLoad(DownloadRequest $request)
     {
-        $userNormal = new UserNormal();
-        $result =  $userNormal->download($request);
-        return $result;
+
+        return $this->folderModule->download($request->fileIds, $request->folderIds);
     }
 
-    public function share(ActionFileRequest $request)
+    public function getRootFoldersAndFiles()
     {
-        $data = $request->validated();
-        $tokens = [];
-        foreach ($data['fileIds'] as $fileId) {
-            $token = Str::random(8);
-            $file = File::find($fileId);
+        return $this->folderModule->getRootFoldersAndFiles();
+    }
 
-            if (is_null($file->token_share)) {
-                $file->token_share = $token;
-                $file->save();
-                $tokens[] = $token;
-            } else {
-                $tokens[] = $file->token_share;
-            }
-        }
-
-        foreach ($data['folderIds'] as $folderId) {
-            $token = Str::random(8);
-            $folder = Folder::find($folderId);
-            if (is_null($folder->token_share)) {
-                $folder->token_share = $token;
-                $folder->save();
-                $tokens[] = $token;
-            } else {
-                $tokens[] = $folder->token_share;
-            }
-        }
-        $link_share = "http://hoangthao.com/api/user/folder/share/";
-        $link_share .= implode(",", $tokens);
-
-        return HttpResponse::resJsonSuccess(['link' => $link_share]);
+    public function share(Request $request)
+    {
+        return $this->folderModule->share($request->token);
     }
 
     public function shareByMe(string $token)
@@ -157,5 +120,15 @@ class FolderController extends Controller
             'files' => FileResource::collection($files),
             'folders' => FolderResource::collection($folders)
         ]);
+    }
+
+    public function restore(RestoreFolderRequest $request)
+    {
+        return $this->folderModule->restore($request->folderIds);
+    }
+
+    public function getFolderStarred()
+    {
+        return $this->folderModule->getFolderStarred();
     }
 }

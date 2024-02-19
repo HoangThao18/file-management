@@ -4,25 +4,24 @@ namespace App\Http\Controllers\API\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Libraries\HttpResponse;
+use App\Http\Requests\changePasswordRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use App\Modules\User\Folder\UserFolderModule;
-use App\Modules\User\UserAdmin;
-use App\Modules\User\UserNormal;
+use App\Modules\User\UserModuleInterface;
 use App\Repositories\UserRepository;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 
 
 class UserController extends Controller
 {
     protected $userRepository;
+    protected $userModule;
 
-    public function __construct(UserRepository $userRepository)
+    public function __construct(UserRepository $userRepository, UserModuleInterface $userModule)
     {
         $this->userRepository = $userRepository;
+        $this->userModule = $userModule;
     }
     /**
      * Display a listing of the resource.
@@ -52,17 +51,6 @@ class UserController extends Controller
         return HttpResponse::resJsonSuccess(new UserResource($user));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($user)
-    {
-        $user = auth()->user();
-        $user = $this->userRepository->find($user->id);
-        $userAdmin = new UserAdmin();
-        $result = $userAdmin->setUser($user)->deleteUser($user);
-        return $result;
-    }
 
     public function getUser()
     {
@@ -71,37 +59,13 @@ class UserController extends Controller
 
     public function getProfile()
     {
-        $user = auth()->user();
-        $user = $this->userRepository->find($user->id);
-        $userNormal = new UserNormal();
-        $userProfile =  $userNormal->setUser($user)->getProfile();
-        return HttpResponse::resJsonSuccess($userProfile);
+        $this->userModule->setUser(Auth()->user());
+        return $this->userModule->getProfile();
     }
 
-    public function changePassword(Request $request)
+    public function changePassword(changePasswordRequest $request)
     {
-        $user = auth()->user();
-        $userNormal = $this->userRepository->find($user->id);
-        $userNormal = new UserNormal();
-        $result = $userNormal->setUser($user)->changePassword($request);
-        return $result;
-    }
-
-    public function getRootFoldersAndFiles(User $user)
-    {
-        $user = auth()->user();
-        $user = $this->userRepository->find($user->id);
-        $UserFolderModule = new UserFolderModule();
-        $result = $UserFolderModule->setUser($user)->getRootFoldersAndFiles();
-        return $result;
-    }
-
-    public function search(Request $request)
-    {
-        $user = auth()->user();
-        $user = $this->userRepository->find($user->id);
-        $userNormal = new UserNormal();
-        $result =  $userNormal->setUser($user)->search($request);
-        return $result;
+        $this->userModule->setUser(Auth()->user());
+        return $this->userModule->changePassword($request->new_password);
     }
 }

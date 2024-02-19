@@ -23,9 +23,11 @@ class DownloadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'parent_id' => ['nullable', Rule::exists('folders', 'id')->whereNull('deleted_at')],
+            // 'parent_id' => ['nullable', Rule::exists('folders', 'id')->whereNull('deleted_at')],
+            "fileIds" => ['Nullable', 'Array'],
             "fileIds.*" => Rule::exists('files', 'id')->whereNull('deleted_at'),
-            "folderIds.*" => Rule::exists('folders', 'id')->whereNull('deleted_at'),
+            "folderIds" => ['Nullable', 'Array'],
+            "folderIds.*" => Rule::exists('folders', 'id')->whereNull('deleted_at')
         ];
     }
 

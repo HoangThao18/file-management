@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Http\Libraries\HttpResponse;
 use App\Models\Folder;
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -20,7 +21,6 @@ class UploadFolderRequest extends FormRequest
 
     protected function prepareForValidation()
     {
-
         $paths = array_filter($this->relative_paths, function ($item) {
             return $item !== null;
         });
@@ -46,21 +46,11 @@ class UploadFolderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'files' => ["required"],
+            'parent_id' => ['nullable', Rule::exists('folders', 'id')->whereNull('deleted_at')],
+            'files' => ["required", "Array"],
             'folder_name' => [
                 'string',
-                function ($attribute, $value, $fail) {
-                    if ($value) {
-                        $folder = Folder::where("name", $value)
-                            ->where('user_id', Auth::id())
-                            ->where('parent_folder', $this->parent_folder ?? null)
-                            ->exists();
-
-                        if ($folder) {
-                            $fail('Folder already exists');
-                        }
-                    }
-                }
+                Rule::unique('folders', 'name')->where('user_id', Auth::id())->where('parent_folder', $this->input('parent_id') ?? null)
             ]
         ];
     }

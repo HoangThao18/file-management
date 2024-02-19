@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\User\Folder;
 use App\Http\Controllers\Controller;
 use App\Http\Libraries\HttpResponse;
 use App\Http\Requests\ActionFileRequest;
+use App\Http\Requests\DeleteFilePermanentlyRequest;
 use App\Http\Requests\StoreTrashRequest;
 use App\Http\Resources\FileResource;
 use App\Http\Resources\FolderResource;
@@ -44,24 +45,12 @@ class TrashController extends Controller
         return HttpResponse::resJsonSuccess(compact('files', 'folders'));
     }
 
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function restore(ActionFileRequest $request)
-    {
-        $user = Auth()->user();
-        $user = User::find($user->id);
-        $userNormal = new UserNormal();
-        $result =  $userNormal->setUser($user)->restore($request);
-        return $result;
-    }
-
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ActionFileRequest $request)
+    public function destroy(DeleteFilePermanentlyRequest $request)
     {
+
         $fileIds = $request->fileIds ?? [];
         $folderIds = $request->folderIds ?? [];
 

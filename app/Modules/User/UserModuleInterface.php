@@ -9,22 +9,7 @@ interface UserModuleInterface
 {
   function getProfile();
 
+  function setUser($user);
+
   function changePassword($request);
-
-  function uploadFile($request);
-
-  function deleteFile($file);
-
-  function search($search);
-
-  function createFolder($request);
-
-  function deleteFolder($folder);
-
-  function download($request);
-
-  function softByName();
-
-
-  function support();
 }

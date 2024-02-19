@@ -45,6 +45,7 @@ class LoginController extends Controller
             $tokenResult = $user->createToken('Personal Access Token');
 
             return HttpResponse::resJsonSuccess([
+                'user' => $user,
                 'token_type' => "Bearer",
                 'access_token' => $tokenResult->accessToken
             ], "User Logged In Successfully");
@@ -75,14 +76,8 @@ class LoginController extends Controller
     // }
 
     // handle login social
-    public function redirectToProvider($provider)
+    public function redirectToGoogle()
     {
-        $validated = $this->validateProvider($provider);
-
-        if (!is_null($validated)) {
-            return $validated;
-        }
-
         return HttpResponse::resJsonSuccess(['url' =>  Socialite::driver('google')->stateless()->redirect()->getTargetUrl()]);
     }
 
@@ -94,7 +89,7 @@ class LoginController extends Controller
             HttpResponse::resJsonNotFond(null);
         }
 
-        $userCreated = User::firstOrCreate(
+        $user = User::firstOrCreate(
             ['email' => $user->email],
             [
                 'email_verified_at' => now(),
@@ -104,8 +99,9 @@ class LoginController extends Controller
             ]
         );
 
-        $token = $userCreated->createToken("access token");
+        $token = $user->createToken("access token");
         return HttpResponse::resJsonSuccess([
+            'user' => $user,
             'token_type' => "Bearer",
             'access_token' => $token->accessToken
         ], "User Logged In Successfully");

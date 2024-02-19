@@ -5,11 +5,13 @@ namespace App\Http\Controllers\API\User\Folder;
 use App\Http\Controllers\Controller;
 use App\Http\Libraries\HttpResponse;
 use App\Http\Requests\DeleteFileRequest;
+use App\Http\Requests\RestoreFileRequest;
 use App\Http\Requests\StoreFileRequest;
 use App\Http\Requests\UploadFileRequest;
 use App\Http\Resources\FileResource;
 use App\Models\File;
 use App\Models\User;
+use App\Modules\User\File\FileModuleInterface;
 use App\Modules\User\UserNormal;
 use App\Repositories\FileRepository;
 use Illuminate\Http\Request;
@@ -17,17 +19,19 @@ use Illuminate\Http\Request;
 class FileController extends Controller
 {
     protected $fileRepository;
+    protected $fileModule;
 
-    public function __construct(FileRepository $fileRepository)
+    public function __construct(FileRepository $fileRepository, FileModuleInterface $fileModule)
     {
         $this->fileRepository = $fileRepository;
+        $this->fileModule = $fileModule;
     }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $files = $this->fileRepository->paginate(10);
+        $files = $this->fileRepository->get();
         return HttpResponse::resJsonSuccess(FileResource::collection($files));
     }
 
@@ -63,19 +67,22 @@ class FileController extends Controller
 
     public function upload(UploadFileRequest $request)
     {
-        $user = auth()->user();
-        $user = User::find($user->id);
-        $userNormal = new UserNormal();
-        $result =  $userNormal->setUser($user)->uploadFile($request);
-        return $result;
+
+        return $this->fileModule->uploadFile($request->validated()['files'], $request->parent_folder ?? null);
     }
 
     public function deleteFile(DeleteFileRequest $request)
     {
-        $user = auth()->user();
-        $user = User::find($user->id);
-        $userNormal = new UserNormal();
-        $result =  $userNormal->setUser($user)->deleteFile($request);
-        return $result;
+        return $this->fileModule->deleteFile($request->validated()['fileIds'] ?? null);
+    }
+
+    public function restore(RestoreFileRequest $request)
+    {
+        return $this->fileModule->restore($request->fileIds);
+    }
+
+    public function getFileStarred()
+    {
+        return $this->fileModule->getFileStarred();
     }
 }
